@@ -7,9 +7,17 @@
       </el-aside>
       <el-container>
         <el-main> <Preview></Preview></el-main>
-        <el-footer>Footer</el-footer>
       </el-container>
     </el-container>
+    <el-footer>
+      <iframe
+        height="500"
+        width="1200"
+        src="https://wj.qq.com/s2/9767902/a091/"
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
+    </el-footer>
   </el-container>
 </template>
 

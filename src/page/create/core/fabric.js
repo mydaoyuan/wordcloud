@@ -2,7 +2,6 @@ import { fabric } from 'fabric'
 
 export function render(canvas, size, wordList) {
   var fabricInstance = new fabric.Canvas(canvas)
-  console.log(wordList)
   update(fabricInstance, size, wordList)
   return fabricInstance
 }
@@ -12,11 +11,9 @@ export function update(fabricInstance, size, wordList) {
   fabricInstance.clear()
   console.log(wordList, 'wordList')
   wordList.map((word) => {
-    console.log(word.x)
     // if (!word.addCenter) {
     word.x = word.x + center[0]
     word.y = word.y + center[1]
-    console.log(word.x, 'after')
     // word.addCenter = true
     // }
     return word
