@@ -18,7 +18,7 @@ const routes = [
 // keep it simple for now.
 const router = VueRouter.createRouter({
   // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
-  history: VueRouter.createWebHashHistory(),
+  history: VueRouter.createWebHashHistory(process.env.VUE_APP_PUBLIC_PATH),
   routes, // short for `routes: routes`
 })
 

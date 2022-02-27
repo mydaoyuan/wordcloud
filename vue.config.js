@@ -1,5 +1,8 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
+  // publicPath: process.env.NODE_ENV === 'production' ? '/wordcloud/' : '/',
+  outputDir: 'wordcloud',
+  publicPath: process.env.VUE_APP_PUBLIC_PATH,
   pages: {
     index: {
       // page 的入口
