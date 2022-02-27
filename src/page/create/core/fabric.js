@@ -1,20 +1,33 @@
 import { fabric } from 'fabric'
 
 export function render(canvas, size, wordList) {
+  var fabricInstance = new fabric.Canvas(canvas)
+  console.log(wordList)
+  update(fabricInstance, size, wordList)
+  return fabricInstance
+}
+
+export function update(fabricInstance, size, wordList) {
   const center = [size[0] / 2, size[1] / 2]
+  fabricInstance.clear()
+  console.log(wordList, 'wordList')
   wordList.map((word) => {
+    console.log(word.x)
+    // if (!word.addCenter) {
     word.x = word.x + center[0]
     word.y = word.y + center[1]
+    console.log(word.x, 'after')
+    // word.addCenter = true
+    // }
     return word
   })
-
-  var fabricInstance = new fabric.Canvas(canvas)
   wordList.forEach((word) => {
-    const { text, size, rotate, x, y } = word
+    const { text, size, rotate, x, y, color } = word
     var fabricText = new fabric.Text(text, {
       textAlign: 'center',
       fontSize: size,
       fontFamily: 'serif',
+      fill: color || getRandomColor(),
       lockScalingFlip: true,
       lockSkewingX: true,
       lockSkewingY: true,
@@ -41,7 +54,10 @@ export function render(canvas, size, wordList) {
     fabricText.setPositionByOrigin(newCenter, 'center', 'center')
     fabricInstance.add(fabricText)
   })
-  return canvas
+}
+
+var getRandomColor = function () {
+  return '#' + ((Math.random() * 0xffffff) << 0).toString(16)
 }
 
 // eslint-disable-next-line no-unused-vars

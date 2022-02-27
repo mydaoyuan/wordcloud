@@ -21,7 +21,7 @@
           <template #default="{ $index }">
             <el-button
               type="danger"
-              icon="Delete"
+              :icon="Delete"
               @click="delteItem($index)"
               circle
             ></el-button>
@@ -124,17 +124,17 @@ export default {
     return {
       Delete: DeleteIcon,
       list: [
-        { text: '螺蛳粉', size: 40, color: 'red' },
-        { text: '重庆小面', size: 35, color: 'blue' },
-        { text: '肉夹馍', size: 35, color: 'blue' },
-        { text: '炸酱面', size: 32, color: 'blue' },
-        { text: '沙县小吃', size: 25, color: 'blue' },
-        { text: '烤冷面', size: 23, color: 'blue' },
-        { text: '臭豆腐', size: 23, color: 'blue' },
-        { text: '钵钵鸡', size: 20, color: 'red' },
-        { text: '酸辣粉', size: 19, color: 'blue' },
-        { text: '冒菜', size: 15, color: 'blue' },
-        { text: '驴打滚', size: 12, color: 'blue' },
+        { text: '螺蛳粉', size: 40, color: '' },
+        { text: '重庆小面', size: 35, color: '' },
+        { text: '肉夹馍', size: 35, color: '' },
+        { text: '炸酱面', size: 32, color: '' },
+        // { text: '沙县小吃', size: 25, color: '' },
+        // { text: '烤冷面', size: 23, color: '' },
+        // { text: '臭豆腐', size: 23, color: '' },
+        // { text: '钵钵鸡', size: 20, color: '' },
+        // { text: '酸辣粉', size: 19, color: '' },
+        { text: '冒菜', size: 15, color: '' },
+        { text: '驴打滚', size: 12, color: '' },
       ],
       predefineColors,
       dynamicValidateForm: {
