@@ -16,6 +16,17 @@
         highlight-current-row
         style="width: 100%"
       >
+        <!-- <el-table-column type="selection" width="55" /> -->
+        <el-table-column align="center" label="操作" width="55">
+          <template #default="{ $index }">
+            <el-button
+              type="danger"
+              icon="Delete"
+              @click="delteItem($index)"
+              circle
+            ></el-button>
+          </template>
+        </el-table-column>
         <el-table-column align="center" width="140">
           <template #header>
             <el-input
@@ -25,7 +36,7 @@
             />
           </template>
           <template #default="{ row }">
-            <span>{{ row.text }}</span>
+            <el-input v-model="row.text" size="small" placeholder="搜索" />
           </template>
         </el-table-column>
 
@@ -86,9 +97,11 @@
 </template>
 
 <script>
-import { parseTime } from '../../assets/utils'
+import { Delete } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-
+import { markRaw } from 'vue-demi'
+import { emitter } from './event'
+const DeleteIcon = markRaw(Delete)
 export default {
   name: 'FormTable',
   data() {
@@ -109,7 +122,20 @@ export default {
       '#c71585',
     ]
     return {
-      list: null,
+      Delete: DeleteIcon,
+      list: [
+        { text: '螺蛳粉', size: 40, color: 'red' },
+        { text: '重庆小面', size: 35, color: 'blue' },
+        { text: '肉夹馍', size: 35, color: 'blue' },
+        { text: '炸酱面', size: 32, color: 'blue' },
+        { text: '沙县小吃', size: 25, color: 'blue' },
+        { text: '烤冷面', size: 23, color: 'blue' },
+        { text: '臭豆腐', size: 23, color: 'blue' },
+        { text: '钵钵鸡', size: 20, color: 'red' },
+        { text: '酸辣粉', size: 19, color: 'blue' },
+        { text: '冒菜', size: 15, color: 'blue' },
+        { text: '驴打滚', size: 12, color: 'blue' },
+      ],
       predefineColors,
       dynamicValidateForm: {
         search: '',
@@ -121,15 +147,22 @@ export default {
   },
   created() {
     this.getList()
+    this.addEventListren()
+  },
+  mounted() {
+    this.emitterRender()
   },
   methods: {
-    parseTime,
+    addEventListren() {
+      emitter.on('render', this.emitterRender)
+    },
+    emitterRender() {
+      emitter.emit('renderStart', this.list)
+    },
     addItem() {
       if (this.dynamicValidateForm.new) {
         this.dynamicValidateForm.list.push({
-          key: Date.now(),
-          fontFamily: '',
-          size: '',
+          size: 15,
           text: this.dynamicValidateForm.new,
         })
         this.dynamicValidateForm.new = ''
@@ -140,22 +173,11 @@ export default {
         })
       }
     },
-    statusFilter(status) {
-      const statusMap = {
-        published: 'success',
-        draft: 'info',
-        deleted: 'danger',
-      }
-      return statusMap[status]
+    delteItem(index) {
+      this.dynamicValidateForm.list.splice(index, 1)
     },
     async getList() {
       this.listLoading = true
-      this.list = [
-        { text: '螺蛳粉', size: 40, color: '' },
-        { text: '重庆小面', size: 35, color: '' },
-        { text: '肉夹馍', size: 35, color: '' },
-        { text: '炸酱面', size: 32, color: '' },
-      ]
       this.dynamicValidateForm.list = this.list
       this.listLoading = false
     },

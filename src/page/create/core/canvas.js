@@ -1,9 +1,9 @@
 import { createCanvas } from './base'
 
 // 返回 canvas 示例
-export function render(size, data) {
+export function render(canvasId, size, data) {
   const center = [size[0] / 2, size[1] / 2]
-  const resultCanvasInfo = createCanvas(size[0], size[1])
+  const resultCanvasInfo = createCanvas(canvasId, size[0], size[1])
   data
     .map((word) => {
       word.x = word.x + center[0]
