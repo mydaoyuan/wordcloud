@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas id="canvas" width="300" height="300"></canvas>
+    <canvas id="canvas" :width="size[0]" :height="size[1]"></canvas>
   </div>
 </template>
 
@@ -8,42 +8,58 @@
 import cloud from './word'
 import { render, update } from './core/fabric'
 // import { render } from './core'
-import {
-  // toRaw,
-  markRaw,
-} from 'vue-demi'
+import { toRaw, markRaw } from 'vue-demi'
 import { emitter } from './event'
 export default {
   data() {
     return {
       fabricInstance: null,
+      size: [400, 400],
     }
   },
   created() {
     emitter.on('renderStart', this.render)
     emitter.on('exportImg', this.exportImg)
+    emitter.on('updateObject', this.updateObject)
   },
   methods: {
+    updateObject({ item, type }) {
+      const objects = this.fabricInstance.getObjects()
+      const { idKey, color } = item
+      const cur = objects.find((fobject) => fobject.idKey == idKey)
+      if (!cur) return console.error(`没有找到 ${idKey} 元素`)
+      if (type == 'color') {
+        cur.set('fill', color)
+        this.fabricInstance.requestRenderAll()
+        console.log('done color')
+      } else {
+        console.error(`${type} 没有定义处理策略`)
+      }
+    },
     exportImg() {
       const dataUrl = this.fabricInstance.lowerCanvasEl.toDataURL('png')
       console.log(dataUrl)
       downloadFile(dataUrl, '词云图片')
     },
     render(data) {
-      // data = toRaw(data)
+      data = JSON.parse(JSON.stringify(toRaw(data)))
       data.map((item) => {
         delete item.x
         delete item.y
+        item.fontFamily = item.fontFamily || 'serif'
       })
-      const size = [300, 300]
+      const size = this.size
       var layout = cloud()
         .size(size)
         .words(data)
         .padding(5)
-        .rotate(function () {
-          return ~~(Math.random() * 2) * 90
+        .rotate(function (d) {
+          return d.rotate || ~~(Math.random() * 2) * 90
         })
         .font('serif')
+        .font(function (d) {
+          return d.fontFamily
+        })
         .fontSize(function (d) {
           return d.size
         })

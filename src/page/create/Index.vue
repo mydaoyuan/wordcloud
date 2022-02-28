@@ -2,7 +2,7 @@
   <el-container>
     <el-header> <HeadTool></HeadTool></el-header>
     <el-container>
-      <el-aside width="580px">
+      <el-aside width="635px">
         <FormTable></FormTable>
       </el-aside>
       <el-container>

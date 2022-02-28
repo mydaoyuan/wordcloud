@@ -58,7 +58,7 @@
             <el-input
               style="width: 80px"
               v-model="row.rotate"
-              placeholder="默认"
+              placeholder="默认随机生成"
               size="small"
             />
           </template>
@@ -67,7 +67,11 @@
         <el-table-column width="90px" label="颜色">
           <template #default="{ row }">
             <span v-if="!row.color">随机</span>
-            <el-color-picker v-model="row.color" :predefine="predefineColors" />
+            <el-color-picker
+              @change="(val) => updateObject(val, 'color', row)"
+              v-model="row.color"
+              :predefine="predefineColors"
+            />
           </template>
         </el-table-column>
 
@@ -101,6 +105,7 @@ import { Delete } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { markRaw } from 'vue-demi'
 import { emitter } from './event'
+import { getUuiD } from '../../assets/utils'
 const DeleteIcon = markRaw(Delete)
 export default {
   name: 'FormTable',
@@ -124,17 +129,17 @@ export default {
     return {
       Delete: DeleteIcon,
       list: [
-        { text: '螺蛳粉', size: 40, color: '' },
-        { text: '重庆小面', size: 35, color: '' },
-        { text: '肉夹馍', size: 35, color: '' },
-        { text: '炸酱面', size: 32, color: '' },
+        { text: '螺蛳粉', size: 40, color: '', idKey: getUuiD() },
+        { text: '重庆小面', size: 35, color: '', idKey: getUuiD() },
+        { text: '肉夹馍', size: 35, color: '', idKey: getUuiD() },
+        { text: '炸酱面', size: 32, color: '', idKey: getUuiD() },
         // { text: '沙县小吃', size: 25, color: '' },
         // { text: '烤冷面', size: 23, color: '' },
         // { text: '臭豆腐', size: 23, color: '' },
         // { text: '钵钵鸡', size: 20, color: '' },
         // { text: '酸辣粉', size: 19, color: '' },
-        { text: '冒菜', size: 15, color: '' },
-        { text: '驴打滚', size: 12, color: '' },
+        { text: '冒菜', size: 15, color: '', idKey: getUuiD() },
+        { text: '驴打滚', size: 12, color: '', idKey: getUuiD() },
       ],
       predefineColors,
       dynamicValidateForm: {
@@ -153,6 +158,12 @@ export default {
     this.emitterRender()
   },
   methods: {
+    updateObject(val, type, item) {
+      emitter.emit('updateObject', {
+        item,
+        type,
+      })
+    },
     addEventListren() {
       emitter.on('render', this.emitterRender)
     },
@@ -162,6 +173,7 @@ export default {
     addItem() {
       if (this.dynamicValidateForm.new) {
         this.dynamicValidateForm.list.push({
+          idkey: getUuiD(),
           size: 15,
           text: this.dynamicValidateForm.new,
         })

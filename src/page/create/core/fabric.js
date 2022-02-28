@@ -19,11 +19,12 @@ export function update(fabricInstance, size, wordList) {
     return word
   })
   wordList.forEach((word) => {
-    const { text, size, rotate, x, y, color } = word
+    const { text, size, rotate, x, y, fontFamily, idKey, color } = word
     var fabricText = new fabric.Text(text, {
       textAlign: 'center',
       fontSize: size,
-      fontFamily: 'serif',
+      idKey,
+      fontFamily: fontFamily,
       fill: color || getRandomColor(),
       lockScalingFlip: true,
       lockSkewingX: true,
