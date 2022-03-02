@@ -11,11 +11,8 @@ export function update(fabricInstance, size, wordList) {
   fabricInstance.clear()
   console.log(wordList, 'wordList')
   wordList.map((word) => {
-    // if (!word.addCenter) {
     word.x = word.x + center[0]
     word.y = word.y + center[1]
-    // word.addCenter = true
-    // }
     return word
   })
   wordList.forEach((word) => {

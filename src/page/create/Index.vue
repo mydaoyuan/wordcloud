@@ -6,11 +6,14 @@
         <FormTable></FormTable>
       </el-aside>
       <el-container>
-        <el-main> <Preview></Preview></el-main>
+        <el-main>
+          <Preview></Preview>
+        </el-main>
       </el-container>
     </el-container>
     <el-footer>
       <iframe
+        v-if="showIframe"
         height="500"
         width="1200"
         src="https://wj.qq.com/s2/9767902/a091/"
@@ -25,6 +28,8 @@
 import FormTable from './FormTable.vue'
 import Preview from './Preview.vue'
 import HeadTool from './HeadTool.vue'
+// import { onMounted } from 'vue-demi'
+const showIframe = process.env.NODE_ENV === 'production'
 </script>
 
 <style lang="scss" scoped></style>
