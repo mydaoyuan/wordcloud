@@ -6,7 +6,7 @@ var cloudRadians = Math.PI / 180,
   cw = (1 << 11) >> 5,
   ch = 1 << 11
 
-const cloud = function () {
+const cloud = function (shapBoard) {
   var size = [256, 256],
     text = cloudText,
     font = cloudFont,
@@ -29,8 +29,9 @@ const cloud = function () {
   }
 
   cloud.start = function () {
+    // 设置了 shape 就展示 shape
+    var board = shapBoard || zeroArray((size[0] >> 5) * size[1])
     var contextAndRatio = getContext(canvas()),
-      board = zeroArray((size[0] >> 5) * size[1]),
       bounds = null,
       n = words.length,
       i = -1,
@@ -252,6 +253,7 @@ function cloudPadding() {
 
 // Fetches a monochrome sprite bitmap for the specified text.
 // Load in batches for speed.
+// 生成二维像素坐标数据
 function cloudSprite(contextAndRatio, d, data, di) {
   if (d.sprite) return
   var c = contextAndRatio.context,
@@ -357,6 +359,13 @@ function cloudCollide(tag, board, sw) {
   for (var j = 0; j < h; j++) {
     last = 0
     for (var i = 0; i <= w; i++) {
+      // last << msx 获取sprite前一个元素超出board左侧边界的部分
+
+      // (last = sprite[j * w + i]) >>> sx 获取sprite超出board右侧边界的部分，并将值赋给last，便于下一个元素的计算
+
+      // 将以上两部分进行"或"操作，合并成完整的32位像素信息
+
+      // 将新合并的数字与board对应数组进行"与"操作，值为0则不重叠，返回false，否则返回true
       if (
         ((last << msx) | (i < w ? (last = sprite[j * w + i]) >>> sx : 0)) &
         board[x + i]
