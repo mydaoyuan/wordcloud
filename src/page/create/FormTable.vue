@@ -156,12 +156,6 @@ export default {
         { text: '酸辣粉', size: 19, color: '', idKey: getUuiD() },
         { text: '冒菜', size: 15, color: '', idKey: getUuiD() },
         { text: '驴打滚', size: 12, color: '', idKey: getUuiD() },
-        ...new Array(10).fill(1).map((v, i) => ({
-          text: `驴${i}`,
-          size: 12 + ~~(Math.random() * 10),
-          color: '',
-          idKey: getUuiD(),
-        })),
       ],
       predefineColors,
       dynamicValidateForm: {
@@ -205,7 +199,15 @@ export default {
       emitter.on('render', this.emitterRender)
     },
     emitterRender() {
-      emitter.emit('renderStart', this.list)
+      emitter.emit('renderStart', [
+        ...this.list,
+        ...new Array(150).fill(1).map((v, i) => ({
+          text: `驴${i}`,
+          size: 12 + ~~(Math.random() * 10),
+          color: '',
+          idKey: getUuiD(),
+        })),
+      ])
     },
     addItem() {
       if (this.dynamicValidateForm.new) {
