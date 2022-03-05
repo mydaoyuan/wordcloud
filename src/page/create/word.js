@@ -2,11 +2,12 @@
 // Algorithm due to Jonathan Feinberg, http://static.mrfeinberg.com/bv_ch03.pdf
 
 import { dispatch } from 'd3-dispatch'
+import { getUuiD } from '../../assets/utils'
 var cloudRadians = Math.PI / 180,
   cw = (1 << 11) >> 5,
   ch = 1 << 11
 
-const cloud = function (shapBoard) {
+const cloud = function (shapBoard, spiralOptions) {
   var size = [256, 256],
     text = cloudText,
     font = cloudFont,
@@ -24,18 +25,32 @@ const cloud = function (shapBoard) {
     cloud = {},
     canvas = cloudCanvas
 
+  cloud.spiralOptions = spiralOptions || { step: 0.1, b: 1, a: 0 }
+  cloud.board = null
+  cloud.contextAndRatio = null
+  cloud.wordMaxLength = 0
+  cloud.tags = []
   cloud.canvas = function (_) {
     return arguments.length ? ((canvas = functor(_)), cloud) : canvas
   }
 
-  cloud.start = function () {
+  function startInit() {
     // 设置了 shape 就展示 shape
     var board = shapBoard || zeroArray((size[0] >> 5) * size[1])
-    var contextAndRatio = getContext(canvas()),
-      bounds = null,
+    cloud.board = board
+    var contextAndRatio = getContext(canvas())
+    cloud.contextAndRatio = contextAndRatio
+  }
+  cloud.start = function (dontInit) {
+    if (!dontInit) {
+      startInit()
+    }
+    var contextAndRatio = cloud.contextAndRatio
+    var board = cloud.board
+    var tags = cloud.tags
+    var bounds = null,
       n = words.length,
       i = -1,
-      tags = [],
       data = words
         .map(function (d, i) {
           d.text = text.call(this, d, i)
@@ -50,7 +65,7 @@ const cloud = function (shapBoard) {
         .sort(function (a, b) {
           return b.size - a.size
         })
-
+    cloud.wordMaxLength += n
     if (timer) clearInterval(timer)
     timer = setInterval(step, 0)
     step()
@@ -80,7 +95,16 @@ const cloud = function (shapBoard) {
       }
       if (i >= n) {
         cloud.stop()
-        event.call('end', cloud, tags, bounds)
+        if (cloud.wordMaxLength < 300) {
+          setTimeout(() => {
+            cloud.changeSpiralOptions({
+              step: 0.1,
+            })
+            cloud.continueWord()
+          })
+        } else {
+          event.call('end', cloud, tags, bounds)
+        }
       }
     }
   }
@@ -118,7 +142,7 @@ const cloud = function (shapBoard) {
     let startX = tag.x,
       startY = tag.y,
       maxDelta = Math.sqrt(size[0] * size[0] + size[1] * size[1]),
-      s = spiral(size),
+      s = spiral(size, spiralOptions),
       dt = random() < 0.5 ? 1 : -1,
       t = -dt,
       dxdy,
@@ -224,9 +248,37 @@ const cloud = function (shapBoard) {
     return value === event ? cloud : value
   }
 
+  cloud.changeSpiralOptions = function (options) {
+    cloud.spiralOptions = options
+  }
+  // 继续在 borad 添加词语
+  cloud.continueWord = function () {
+    console.log(cloud.words)
+    const wordList = generateWord(cloud.words(), 300 - cloud.wordMaxLength)
+    cloud.words(wordList)
+    cloud.start(true)
+  }
+
   return cloud
 }
 
+function generateWord(word, length) {
+  const canReapteWord = word.filter((i) => i.isrepeat)
+
+  const result = []
+  for (let index = 0; index < length; index++) {
+    const randomIndex = ~~(Math.random() * canReapteWord.length)
+    const i = canReapteWord[randomIndex]
+    result.push({
+      text: i.text,
+      size: 5 + ~~(Math.random() * 10),
+      color: '',
+      idKey: getUuiD(),
+      isrepeat: true,
+    })
+  }
+  return result
+}
 function cloudText(d) {
   return d.text
 }
@@ -395,10 +447,17 @@ function collideRects(a, b) {
   )
 }
 
-function archimedeanSpiral(size) {
-  var e = size[0] / size[1]
+// function archimedeanSpiral(size) {
+//   var e = size[0] / size[1]
+//   return function (t) {
+//     return [e * (t *= 2) * Math.cos(t), t * Math.sin(t)]
+//   }
+// }
+export function archimedeanSpiral(size, { step = 0.1, b = 1, a = 0 } = {}) {
+  const e = size[0] / size[1] // 根据画布长宽比例进行对应缩放
+  // 参数t为当前弧度值
   return function (t) {
-    return [e * (t *= 0.1) * Math.cos(t), t * Math.sin(t)]
+    return [e * (a + b * (t *= step)) * Math.cos(t), (a + b * t) * Math.sin(t)]
   }
 }
 

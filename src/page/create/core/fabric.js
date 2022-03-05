@@ -1,7 +1,21 @@
 import { fabric } from 'fabric'
 
-export function render(canvas, size, wordList) {
+export function render(canvas, size, wordList, imgIcon) {
   var fabricInstance = new fabric.Canvas(canvas)
+  if (imgIcon) {
+    fabric.Image.fromURL(imgIcon, function (img) {
+      console.log(parseInt(524) / img.width, img)
+      var oImg = img.set({
+        left: 0,
+        top: 0,
+        selectable: false,
+        opacity: 0.1,
+        scaleX: 524 / img.width, //按照默认的尺寸宽度为200的尺寸处理图片添加，所以此处计算原图宽和200的比例，进行缩放
+        scaleY: 456 / img.height, //纵向缩放比以横向比例为主
+      })
+      fabricInstance.add(oImg)
+    })
+  }
   update(fabricInstance, size, wordList)
   return fabricInstance
 }
@@ -21,7 +35,7 @@ export function update(fabricInstance, size, wordList) {
       textAlign: 'center',
       fontSize: size,
       idKey,
-      fontFamily: fontFamily,
+      fontFamily: fontFamily || 'serif',
       fill: color || getRandomColor(),
       lockScalingFlip: true,
       lockSkewingX: true,

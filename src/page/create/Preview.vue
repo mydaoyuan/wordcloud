@@ -17,7 +17,7 @@ export default {
   data() {
     return {
       fabricInstance: null,
-      size: [400, 400],
+      size: [524, 456],
     }
   },
   created() {
@@ -53,13 +53,14 @@ export default {
         item.fontFamily = item.fontFamily || 'serif'
       })
       const size = this.size
-      !hideCanvas && paint(shapBoard.sprite, [400, 400])
+      !hideCanvas && paint(shapBoard.sprite, [524, 456])
       var layout = cloud(shapBoard.sprite)
         .size(size)
         .words(data)
         .padding(3)
         .rotate(function (d) {
-          return d.rotate || ~~(Math.random() * 2) * 90
+          return d.rotate || 0
+          // return d.rotate || ~~(Math.random() * 2) * 90
         })
         .font('serif')
         .font(function (d) {
@@ -70,7 +71,7 @@ export default {
         })
         .on('end', (data) => {
           if (!this.fabricInstance) {
-            this.fabricInstance = markRaw(render('canvas', size, data))
+            this.fabricInstance = markRaw(render('canvas', size, data, Icon))
           } else {
             update(this.fabricInstance, size, data)
           }
@@ -83,13 +84,13 @@ export default {
     },
     getShapBorad() {
       return new Promise((resolve) => {
-        const size = [400, 400]
+        const size = [524, 456]
         var mycanvas = document.createElement('canvas')
         mycanvas.width = size[0]
         mycanvas.height = size[1]
         mycanvas.style = `position: absolute;
-          width: 400px;
-          height: 400px;
+          width: ${size[0]}px;
+          height: ${size[1]}px;
           left: 0px;
           top: 0px;
           touch-action: none;
@@ -104,7 +105,6 @@ export default {
         var img = new Image()
         img.onload = function () {
           // 将图片画到canvas上面上去！
-          console.log(img, 'img')
           c.drawImage(img, 0, 0, size[0], size[1])
           var pixels = c.getImageData(0, 0, size[0], size[1]).data
           var sprite = []
@@ -121,12 +121,11 @@ export default {
           var x = 0
           var y = 0
           var seen = 0
-          console.log(pixels, 'pixels')
           for (var j = 0; j < h; j++) {
             for (let i = 0; i < w; i++) {
               var k = w32 * j + (i >> 5),
                 // m 就是某个像素点的信息， 400 是size
-                m = pixels[((y + j) * 400 + (x + i)) * 4]
+                m = pixels[((y + j) * size[0] + (x + i)) * 4]
                   ? 0
                   : 1 << (31 - (i % 32))
               sprite[k] |= m
