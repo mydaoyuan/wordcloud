@@ -145,17 +145,77 @@ export default {
       currentItemIndex: NaN,
       Delete: DeleteIcon,
       list: [
-        { text: '螺蛳粉', size: 40, color: '', idKey: getUuiD() },
-        { text: '重庆小面', size: 35, color: '', idKey: getUuiD() },
-        { text: '肉夹馍', size: 35, color: '', idKey: getUuiD() },
-        { text: '炸酱面', size: 32, color: '', idKey: getUuiD() },
-        { text: '沙县小吃', size: 25, color: '', idKey: getUuiD() },
-        { text: '烤冷面', size: 23, color: '', idKey: getUuiD() },
-        { text: '臭豆腐', size: 23, color: '', idKey: getUuiD() },
-        { text: '钵钵鸡', size: 20, color: '', idKey: getUuiD() },
-        { text: '酸辣粉', size: 19, color: '', idKey: getUuiD() },
-        { text: '冒菜', size: 15, color: '', idKey: getUuiD() },
-        { text: '驴打滚', size: 12, color: '', idKey: getUuiD() },
+        {
+          text: '螺蛳粉',
+          size: 40,
+          color: '',
+          idKey: getUuiD(),
+          isrepeat: false,
+        },
+        {
+          text: '重庆小面',
+          size: 35,
+          color: '',
+          idKey: getUuiD(),
+          isrepeat: true,
+        },
+        {
+          text: '肉夹馍',
+          size: 35,
+          color: '',
+          idKey: getUuiD(),
+          isrepeat: true,
+        },
+        {
+          text: '炸酱面',
+          size: 32,
+          color: '',
+          idKey: getUuiD(),
+          isrepeat: true,
+        },
+        {
+          text: '沙县小吃',
+          size: 25,
+          color: '',
+          idKey: getUuiD(),
+          isrepeat: true,
+        },
+        {
+          text: '烤冷面',
+          size: 23,
+          color: '',
+          idKey: getUuiD(),
+          isrepeat: true,
+        },
+        {
+          text: '臭豆腐',
+          size: 23,
+          color: '',
+          idKey: getUuiD(),
+          isrepeat: true,
+        },
+        {
+          text: '钵钵鸡',
+          size: 20,
+          color: '',
+          idKey: getUuiD(),
+          isrepeat: true,
+        },
+        {
+          text: '酸辣粉',
+          size: 19,
+          color: '',
+          idKey: getUuiD(),
+          isrepeat: true,
+        },
+        { text: '冒菜', size: 15, color: '', idKey: getUuiD(), isrepeat: true },
+        {
+          text: '驴打滚',
+          size: 12,
+          color: '',
+          idKey: getUuiD(),
+          isrepeat: true,
+        },
       ],
       predefineColors,
       dynamicValidateForm: {
@@ -199,15 +259,7 @@ export default {
       emitter.on('render', this.emitterRender)
     },
     emitterRender() {
-      emitter.emit('renderStart', [
-        ...this.list,
-        ...new Array(150).fill(1).map((v, i) => ({
-          text: `驴${i}`,
-          size: 12 + ~~(Math.random() * 10),
-          color: '',
-          idKey: getUuiD(),
-        })),
-      ])
+      emitter.emit('renderStart', this.list)
     },
     addItem() {
       if (this.dynamicValidateForm.new) {
