@@ -2,6 +2,7 @@ import { fabric } from 'fabric'
 
 export function render(canvas, size, wordList, imgIcon) {
   var fabricInstance = new fabric.Canvas(canvas)
+
   if (imgIcon) {
     fabric.Image.fromURL(imgIcon, function (img) {
       console.log(parseInt(524) / img.width, img)
@@ -14,6 +15,8 @@ export function render(canvas, size, wordList, imgIcon) {
         scaleY: 456 / img.height, //纵向缩放比以横向比例为主
       })
       fabricInstance.add(oImg)
+      // 移动到最后层级
+      img.sendToBack()
     })
   }
   update(fabricInstance, size, wordList)
