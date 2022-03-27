@@ -91,12 +91,8 @@
 
         <el-table-column width="120px" label="字体">
           <template #default="{ row, $index }">
-            <span v-if="$index != currentItemIndex">{{ row.fontFamily }}</span>
-            <el-select v-else v-model="row.fontFamily" placeholder="选择字体">
-              <el-option label="随机" value=""></el-option>
-              <el-option label="Zone one" value="shanghai"></el-option>
-              <el-option label="Zone two" value="beijing"></el-option>
-            </el-select>
+            <span v-if="$index != currentItemIndex" @click="showFontPanel(row.text)">{{ row.fontFamily }}</span>
+            <span v-else style="display: block; width: 100%; height: 100%; text-align: center" @click="showFontPanel(row.text)">请选择字体</span>
           </template>
         </el-table-column>
       </el-table>
@@ -112,6 +108,17 @@
         </el-form-item>
       </div>
     </el-form>
+    <el-dialog v-model="showPanel" :title="`请选择 ${chosenWord} 的字体`">
+      <div v-for="group in fontGroup" :key="group.label">
+        {{ group.label }}
+        <ul style="list-style-type: none;">
+          <li v-for="item in group.options" :key="item.name">
+            <div style="width: 100%; height: 40px; border-bottom: 1px solid #f5f5f5; line-height: 40px;">{{item.name}}</div>
+            <img :src="`../../../staticData/files/${decodeURI(group.label)}/${decodeURI(item.name)}/${decodeURI(item.preview)}`">
+          </li>
+        </ul>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -121,6 +128,10 @@ import { ElMessage } from 'element-plus'
 import { markRaw } from 'vue-demi'
 import { emitter } from './event'
 import { getUuiD } from '../../assets/utils'
+import chinese from '../../../staticData/files/chinese/index.json'
+import english from '../../../staticData/files/english/index.json'
+import others from '../../../staticData/files/others/index.json'
+
 const DeleteIcon = markRaw(Delete)
 export default {
   name: 'FormTable',
@@ -142,6 +153,8 @@ export default {
       '#c71585',
     ]
     return {
+      fontList: [],
+      chosenWord: '',
       currentItemIndex: NaN,
       Delete: DeleteIcon,
       list: [
@@ -224,12 +237,14 @@ export default {
         list: [],
       },
       listLoading: false,
+      showPanel: false,
     }
   },
   created() {
     // this.getList()
     this.dynamicValidateForm.list = this.list
     this.addEventListren()
+    this.getFontList()
   },
   mounted() {
     this.emitterRender()
@@ -279,6 +294,18 @@ export default {
     delteItem(index) {
       this.dynamicValidateForm.list.splice(index, 1)
     },
+    getFontList() {
+      const chs_font = JSON.parse(JSON.stringify(chinese))
+      const eng_font = JSON.parse(JSON.stringify(english))
+      const otr_font = JSON.parse(JSON.stringify(others))
+      this.fontGroup = [ { label: 'chinese', options: [ ...chs_font ] }, { label: 'english', options: [ ...eng_font ] }, { label: 'others', options: [ ...otr_font ] } ]
+      console.log('fontLists', this.fontGroup)
+    },
+    showFontPanel(word) {
+      console.log('1111')
+      this.showPanel = true
+      this.chosenWord = word
+    }
     // async getList() {
     //   this.listLoading = true
     //   this.listLoading = false
