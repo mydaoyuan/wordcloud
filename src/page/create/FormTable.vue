@@ -91,8 +91,22 @@
 
         <el-table-column width="120px" label="字体">
           <template #default="{ row, $index }">
-            <span v-if="$index != currentItemIndex" @click="showFontPanel(row.text)">{{ row.fontFamily }}</span>
-            <span v-else style="display: block; width: 100%; height: 100%; text-align: center" @click="showFontPanel(row.text)">请选择字体</span>
+            <span
+              v-if="$index != currentItemIndex"
+              @click="showFontPanel(row.text)"
+              >{{ row.fontFamily }}</span
+            >
+            <span
+              v-else
+              style="
+                display: block;
+                width: 100%;
+                height: 100%;
+                text-align: center;
+              "
+              @click="showFontPanel(row.text)"
+              >请选择字体</span
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -111,10 +125,21 @@
     <el-dialog v-model="showPanel" :title="`请选择 ${chosenWord} 的字体`">
       <div v-for="group in fontGroup" :key="group.label">
         {{ group.label }}
-        <ul style="list-style-type: none;">
+        <ul style="list-style-type: none">
           <li v-for="item in group.options" :key="item.name">
-            <div style="width: 100%; height: 40px; border-bottom: 1px solid #f5f5f5; line-height: 40px;">{{item.name}}</div>
-            <img :src="`../../../staticData/files/${decodeURI(group.label)}/${decodeURI(item.name)}/${decodeURI(item.preview)}`">
+            <div
+              style="
+                width: 100%;
+                height: 40px;
+                border-bottom: 1px solid #f5f5f5;
+                line-height: 40px;
+              "
+            >
+              {{ item.name }}
+            </div>
+            <img
+              :src="`${publicPath}files/${group.label}/${item.name}/${item.preview}`"
+            />
           </li>
         </ul>
       </div>
@@ -128,9 +153,9 @@ import { ElMessage } from 'element-plus'
 import { markRaw } from 'vue-demi'
 import { emitter } from './event'
 import { getUuiD } from '../../assets/utils'
-import chinese from '../../../staticData/files/chinese/index.json'
-import english from '../../../staticData/files/english/index.json'
-import others from '../../../staticData/files/others/index.json'
+import chinese from '/public/files/chinese/index.json'
+import english from '/public/files/english/index.json'
+import others from '/public/files/others/index.json'
 
 const DeleteIcon = markRaw(Delete)
 export default {
@@ -153,6 +178,7 @@ export default {
       '#c71585',
     ]
     return {
+      publicPath: process.env.BASE_URL,
       fontList: [],
       chosenWord: '',
       currentItemIndex: NaN,
@@ -298,14 +324,18 @@ export default {
       const chs_font = JSON.parse(JSON.stringify(chinese))
       const eng_font = JSON.parse(JSON.stringify(english))
       const otr_font = JSON.parse(JSON.stringify(others))
-      this.fontGroup = [ { label: 'chinese', options: [ ...chs_font ] }, { label: 'english', options: [ ...eng_font ] }, { label: 'others', options: [ ...otr_font ] } ]
+      this.fontGroup = [
+        { label: 'chinese', options: [...chs_font] },
+        { label: 'english', options: [...eng_font] },
+        { label: 'others', options: [...otr_font] },
+      ]
       console.log('fontLists', this.fontGroup)
     },
     showFontPanel(word) {
       console.log('1111')
       this.showPanel = true
       this.chosenWord = word
-    }
+    },
     // async getList() {
     //   this.listLoading = true
     //   this.listLoading = false
