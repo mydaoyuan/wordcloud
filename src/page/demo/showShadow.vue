@@ -5,6 +5,10 @@
     <el-button @click="addWorld">增加一个单词</el-button>
     <div ref="canvascontent" style="position: relative"></div>
     <input type="text" v-model="pos" />
+    <p>
+      随机增加一个单词，判断单词是否和shape有重叠，重叠则为红色，未重叠则为蓝色。
+      输入pos则使用pos值作为Y轴值，否则自动生成
+    </p>
   </div>
 </template>
 
