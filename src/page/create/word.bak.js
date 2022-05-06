@@ -1,15 +1,15 @@
 // Word cloud layout by Jason Davies, https://www.jasondavies.com/wordcloud/
 // Algorithm due to Jonathan Feinberg, http://static.mrfeinberg.com/bv_ch03.pdf
 
-import { dispatch } from 'd3-dispatch'
-import { getUuiD } from '../../assets/utils'
+var dispatch = require('d3-dispatch').dispatch
+
 var cloudRadians = Math.PI / 180,
   // cw 64
   cw = (1 << 11) >> 5,
   // 默认2048高度
   ch = 1 << 11
 
-const cloud = function (shapBoard, spiralOptions) {
+module.exports = function () {
   var size = [256, 256],
     text = cloudText,
     font = cloudFont,
@@ -27,32 +27,20 @@ const cloud = function (shapBoard, spiralOptions) {
     cloud = {},
     canvas = cloudCanvas
 
-  cloud.spiralOptions = spiralOptions || { step: 0.1, b: 1, a: 0 }
-  cloud.board = null
-  cloud.contextAndRatio = null
-  cloud.wordMaxLength = 0
-  cloud.tags = []
   cloud.canvas = function (_) {
     return arguments.length ? ((canvas = functor(_)), cloud) : canvas
   }
 
-  function startInit() {
-    // 设置了 shape 就展示 shape
-    var board = shapBoard || zeroArray((size[0] >> 5) * size[1])
-    cloud.board = board
-    var contextAndRatio = getContext(canvas())
-    cloud.contextAndRatio = contextAndRatio
-  }
-  cloud.start = function (dontInit) {
-    if (!dontInit) {
-      startInit()
-    }
-    var contextAndRatio = cloud.contextAndRatio
-    var board = cloud.board
-    var tags = cloud.tags
-    var bounds = null,
+  cloud.start = function () {
+    var contextAndRatio = getContext(canvas()),
+      // 2048 长度的空数组， 作为画板计算
+      board = zeroArray((size[0] >> 5) * size[1]),
+      // 记录已经放置了文字的位置标点
+      bounds = null,
       n = words.length,
       i = -1,
+      // 记录放置的词语
+      tags = [],
       data = words
         .map(function (d, i) {
           d.text = text.call(this, d, i)
@@ -67,7 +55,7 @@ const cloud = function (shapBoard, spiralOptions) {
         .sort(function (a, b) {
           return b.size - a.size
         })
-    cloud.wordMaxLength += n
+
     if (timer) clearInterval(timer)
     timer = setInterval(step, 0)
     step()
@@ -80,10 +68,14 @@ const cloud = function (shapBoard, spiralOptions) {
         var d = data[i]
         d.x = (size[0] * (random() + 0.5)) >> 1
         d.y = (size[1] * (random() + 0.5)) >> 1
+        // 生成单词的像素图
         cloudSprite(contextAndRatio, d, data, i)
+        // 尝试放置单词
         if (d.hasText && place(board, d, bounds)) {
+          // 放置成功就收集起来
           tags.push(d)
           event.call('word', cloud, d)
+          // 更新bounds位置
           if (bounds) cloudBounds(bounds, d)
           else
             bounds = [
@@ -96,17 +88,9 @@ const cloud = function (shapBoard, spiralOptions) {
         }
       }
       if (i >= n) {
+        // 完成所有的渲染
         cloud.stop()
-        if (cloud.wordMaxLength < 300) {
-          setTimeout(() => {
-            cloud.changeSpiralOptions({
-              step: 0.1,
-            })
-            cloud.continueWord()
-          })
-        } else {
-          event.call('end', cloud, tags, bounds)
-        }
+        event.call('end', cloud, tags, bounds)
       }
     }
   }
@@ -124,27 +108,26 @@ const cloud = function (shapBoard, spiralOptions) {
     var ratio = Math.sqrt(
       canvas.getContext('2d').getImageData(0, 0, 1, 1).data.length >> 2
     )
-    // var ratio = Math.sqrt(
-    //   canvas.getContext('2d').getImageData(0, 0, 1, 1).data.length >> 2
-    // )
     canvas.width = (cw << 5) / ratio
     canvas.height = ch / ratio
 
     var context = canvas.getContext('2d')
     context.fillStyle = context.strokeStyle = 'red'
     context.textAlign = 'center'
+
     return { context: context, ratio: ratio }
   }
 
   function place(board, tag, bounds) {
-    // var perimeter = [
-    //     { x: 0, y: 0 },
-    //     { x: size[0], y: size[1] },
-    //   ],
-    let startX = tag.x,
+    var perimeter = [
+        { x: 0, y: 0 },
+        { x: size[0], y: size[1] },
+      ],
+      // 开启放置的位置
+      startX = tag.x,
       startY = tag.y,
       maxDelta = Math.sqrt(size[0] * size[0] + size[1] * size[1]),
-      s = spiral(size, spiralOptions),
+      s = spiral(size),
       dt = random() < 0.5 ? 1 : -1,
       t = -dt,
       dxdy,
@@ -154,12 +137,9 @@ const cloud = function (shapBoard, spiralOptions) {
     while ((dxdy = s((t += dt)))) {
       dx = ~~dxdy[0]
       dy = ~~dxdy[1]
-
       if (Math.min(Math.abs(dx), Math.abs(dy)) >= maxDelta) break
-
       tag.x = startX + dx
       tag.y = startY + dy
-
       if (
         tag.x + tag.x0 < 0 ||
         tag.y + tag.y0 < 0 ||
@@ -174,7 +154,9 @@ const cloud = function (shapBoard, spiralOptions) {
             w = tag.width >> 5,
             sw = size[0] >> 5,
             lx = tag.x - (w << 4),
+            // lx &  127
             sx = lx & 0x7f,
+            // 偏移量
             msx = 32 - sx,
             h = tag.y1 - tag.y0,
             x = (tag.y + tag.y0) * sw + (lx >> 5),
@@ -250,37 +232,9 @@ const cloud = function (shapBoard, spiralOptions) {
     return value === event ? cloud : value
   }
 
-  cloud.changeSpiralOptions = function (options) {
-    cloud.spiralOptions = options
-  }
-  // 继续在 borad 添加词语
-  cloud.continueWord = function () {
-    console.log(cloud.words)
-    const wordList = generateWord(cloud.words(), 300 - cloud.wordMaxLength)
-    cloud.words(wordList)
-    cloud.start(true)
-  }
-
   return cloud
 }
 
-function generateWord(word, length) {
-  const canReapteWord = word.filter((i) => i.isrepeat)
-
-  const result = []
-  for (let index = 0; index < length; index++) {
-    const randomIndex = ~~(Math.random() * canReapteWord.length)
-    const i = canReapteWord[randomIndex]
-    result.push({
-      text: i.text,
-      size: 5 + ~~(Math.random() * 10),
-      color: '',
-      idKey: getUuiD(),
-      isrepeat: true,
-    })
-  }
-  return result
-}
 function cloudText(d) {
   return d.text
 }
@@ -307,18 +261,18 @@ function cloudPadding() {
 
 // Fetches a monochrome sprite bitmap for the specified text.
 // Load in batches for speed.
-// 生成二维像素坐标数据
 function cloudSprite(contextAndRatio, d, data, di) {
   if (d.sprite) return
   var c = contextAndRatio.context,
     ratio = contextAndRatio.ratio
-
+  //   0 0 2048 2048
   c.clearRect(0, 0, (cw << 5) / ratio, ch / ratio)
   var x = 0,
     y = 0,
     maxh = 0,
     n = data.length
   --di
+  // 遍历所有的单词
   while (++di < n) {
     d = data[di]
     c.save()
@@ -367,7 +321,7 @@ function cloudSprite(contextAndRatio, d, data, di) {
   while (--di >= 0) {
     d = data[di]
     if (!d.hasText) continue
-    let w = d.width,
+    var w = d.width,
       w32 = w >> 5,
       h = d.y1 - d.y0
     // Zero the buffer
@@ -378,8 +332,9 @@ function cloudSprite(contextAndRatio, d, data, di) {
     var seen = 0,
       seenRow = -1
     for (var j = 0; j < h; j++) {
-      for (let i = 0; i < w; i++) {
+      for (var i = 0; i < w; i++) {
         var k = w32 * j + (i >> 5),
+          // (cw << 5) 宽度    << 2  ==  * 4  获取到对应的像素点r通道
           m = pixels[((y + j) * (cw << 5) + (x + i)) << 2]
             ? 1 << (31 - (i % 32))
             : 0
@@ -400,56 +355,26 @@ function cloudSprite(contextAndRatio, d, data, di) {
 }
 
 // Use mask-based collision detection.
+// 碰撞检测
 function cloudCollide(tag, board, sw) {
   sw >>= 5
   var sprite = tag.sprite,
-    w = tag.width >> 5, // 宽度占用的 w
-    lx = tag.x - (w << 4), //  左侧 X 点
-    newsx = tag.x - 32 * (tag.x >> 5),
-    sx = newsx, // 需要偏移的量
-    // sx = lx & 0x7f,
+    w = tag.width >> 5,
+    lx = tag.x - (w << 4),
+    sx = lx & 0x7f,
     msx = 32 - sx,
     h = tag.y1 - tag.y0,
     x = (tag.y + tag.y0) * sw + (lx >> 5),
-    // (tag.y + tag.y0) * sw 是获取高度
-    //  (lx >> 5) 是当前的位置，消失后的
     last
-  // console.log(lx, sx, msx, newsx, '===')
-  // debugger
   for (var j = 0; j < h; j++) {
     last = 0
     for (var i = 0; i <= w; i++) {
-      // last << msx 获取sprite前一个元素超出board左侧边界的部分
-
-      // (last = sprite[j * w + i]) >>> sx 获取sprite超出board右侧边界的部分，并将值赋给last，便于下一个元素的计算
-
-      // 将以上两部分进行"或"操作，合并成完整的32位像素信息
-
-      // 将新合并的数字与board对应数组进行"与"操作，值为0则不重叠，返回false，否则返回true
-      // 8..toString(2) // '1000'
-      // (8 << 4).toString(2) // '10000000'
-      // (8 >> 2).toString(2) // '10'
       if (
-        // last << msx 获取sprite前一个元素超出board左侧边界的部分
-        // ，方便合并和board对比
-        // 第一次last 为 0
-        // <<  右侧补位 0 ( 32 - sx )个
-        //
-        ((last << msx) |
-          (i < w
-            ? // j * w + i 对应位置的数据 获取sprite超出board右侧边界的部分
-              // 左侧补0 sx个
-              (last = sprite[j * w + i]) >>> sx
-            : //
-              //
-              0)) & // 使用 0  当 i  = w
-        //
-        //
+        ((last << msx) | (i < w ? (last = sprite[j * w + i]) >>> sx : 0)) &
         board[x + i]
       )
         return true
     }
-    // 进行下一行的识别
     x += sw
   }
   return false
@@ -473,20 +398,14 @@ function collideRects(a, b) {
   )
 }
 
-// function archimedeanSpiral(size) {
-//   var e = size[0] / size[1]
-//   return function (t) {
-//     return [e * (t *= 2) * Math.cos(t), t * Math.sin(t)]
-//   }
-// }
-export function archimedeanSpiral(size, { step = 0.1, b = 1, a = 0 } = {}) {
-  const e = size[0] / size[1] // 根据画布长宽比例进行对应缩放
-  // 参数t为当前弧度值
+// 放置曲线
+function archimedeanSpiral(size) {
+  var e = size[0] / size[1]
   return function (t) {
-    return [e * (a + b * (t *= step)) * Math.cos(t), (a + b * t) * Math.sin(t)]
+    return [e * (t *= 0.1) * Math.cos(t), t * Math.sin(t)]
   }
 }
-
+// 矩形放置
 function rectangularSpiral(size) {
   var dy = 4,
     dx = (dy * size[0]) / size[1],
@@ -537,5 +456,3 @@ var spirals = {
   archimedean: archimedeanSpiral,
   rectangular: rectangularSpiral,
 }
-
-export default cloud

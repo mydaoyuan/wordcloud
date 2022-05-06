@@ -5,7 +5,6 @@ export function render(canvas, size, wordList, imgIcon) {
 
   if (imgIcon) {
     fabric.Image.fromURL(imgIcon, function (img) {
-      console.log(parseInt(524) / img.width, img)
       var oImg = img.set({
         left: 0,
         top: 0,

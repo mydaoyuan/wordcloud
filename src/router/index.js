@@ -4,6 +4,7 @@ import * as VueRouter from 'vue-router'
 const About = { template: '<h1>About</h1>' }
 // const Create = imp
 import Create from '../page/create/Index.vue'
+import showShadow from '../page/demo/showShadow.vue'
 
 // 2. Define some routes
 // Each route should map to a component.
@@ -11,6 +12,7 @@ import Create from '../page/create/Index.vue'
 const routes = [
   { path: '/', component: Create },
   { path: '/about', component: About },
+  { path: '/demo', component: showShadow },
 ]
 
 // 3. Create the router instance and pass the `routes` option

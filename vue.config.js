@@ -1,5 +1,11 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
+  devServer: {
+    client: {
+      // or
+      overlay: false,
+    },
+  },
   // publicPath: process.env.NODE_ENV === 'production' ? '/wordcloud/' : '/',
   outputDir: 'wordcloud',
   publicPath: process.env.VUE_APP_PUBLIC_PATH,
