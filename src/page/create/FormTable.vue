@@ -296,6 +296,7 @@ export default {
         type,
       })
     },
+    // 点击生成 词云，再次触发渲染
     addEventListren() {
       emitter.on('render', this.emitterRender)
     },
@@ -320,6 +321,7 @@ export default {
     delteItem(index) {
       this.dynamicValidateForm.list.splice(index, 1)
     },
+    // 字体选择
     getFontList() {
       const chs_font = JSON.parse(JSON.stringify(chinese))
       const eng_font = JSON.parse(JSON.stringify(english))

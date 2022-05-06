@@ -2,7 +2,7 @@ import { fabric } from 'fabric'
 
 export function render(canvas, size, wordList, imgIcon) {
   var fabricInstance = new fabric.Canvas(canvas)
-
+  // 设置背景图片
   if (imgIcon) {
     fabric.Image.fromURL(imgIcon, function (img) {
       var oImg = img.set({
@@ -45,6 +45,7 @@ export function update(fabricInstance, size, wordList) {
       lockScalingY: true,
       lockScalingX: true,
     })
+    // 根据旋转角度，做矩阵变化
     const cr = Math.cos((rotate * Math.PI) / 180)
     const sr = Math.sin((rotate * Math.PI) / 180)
     var transformMatrix = [

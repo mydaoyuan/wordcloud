@@ -47,6 +47,7 @@ export default {
     async render(data) {
       var shapBoard = await this.getShapBorad()
       data = JSON.parse(JSON.stringify(toRaw(data)))
+      console.log(data, 'datadatadata')
       data.map((item) => {
         delete item.x
         delete item.y
