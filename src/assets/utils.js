@@ -367,3 +367,58 @@ export function getUuiD(randomLength = 10) {
     Math.random().toString().substr(2, randomLength) + Date.now()
   ).toString(36)
 }
+
+// 打印出当前 board 样式
+export const paint = (board, paintSize, addStyle) => {
+  const curSize = paintSize
+  const imageData = new ImageData(curSize[0], curSize[1])
+  let array = imageData.data
+  for (let i = 0; i < curSize[1]; i++) {
+    for (let j = 0; j < curSize[0] >> 5; j++) {
+      let value = board[i * (curSize[0] >> 5) + j]
+      for (let k = 0; k < 32; k++) {
+        // 遮罩，获取对应位置bit值
+        const msk = 0b1 << (32 - k)
+        if (!(value & msk)) {
+          // 占用像素, 填充白色
+          for (let l = 0; l < 4; l++) {
+            array[i * curSize[0] * 4 + j * 32 * 4 + k * 4 + l] = 255
+          }
+        } else {
+          // 未占用像素, 填充黑色
+          for (let l = 0; l < 3; l++) {
+            array[i * curSize[0] * 4 + j * 32 * 4 + k * 4 + l] = 0
+          }
+          array[i * curSize[0] * 4 + j * 32 * 4 + k * 4 + 3] = 255
+        }
+        // 数组元素分割线, 填充红色, 间隔32px
+        if (k === 0) {
+          array[i * curSize[0] * 4 + j * 32 * 4 + k * 4 + 0] = 255
+          array[i * curSize[0] * 4 + j * 32 * 4 + k * 4 + 1] = 0
+          array[i * curSize[0] * 4 + j * 32 * 4 + k * 4 + 2] = 0
+        }
+      }
+    }
+  }
+  const canvas = document.createElement('canvas')
+  canvas.width = curSize[0]
+  canvas.height = curSize[1]
+  const ctx = canvas.getContext('2d')
+  ctx.putImageData(imageData, 0, 0)
+  canvas.style.marginRight = '10px'
+  const styles = {
+    marginRight: '10px',
+    position: 'absolute',
+    top: '90px',
+    left: '663px',
+    opacity: 0,
+  }
+  if (addStyle) {
+    for (const item in styles) {
+      if (Object.hasOwnProperty.call(styles, item)) {
+        canvas.style[item] = styles[item]
+      }
+    }
+  }
+  document.body.appendChild(canvas)
+}

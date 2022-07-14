@@ -24,18 +24,27 @@ export function render(canvas, size, wordList, imgIcon) {
 
 export function update(fabricInstance, size, wordList) {
   const center = [size[0] / 2, size[1] / 2]
-  fabricInstance.clear()
+  // fabricInstance.clear()
   console.log(wordList, 'wordList')
-  wordList.map((word) => {
-    word.x = word.x + center[0]
-    word.y = word.y + center[1]
-    return word
-  })
+  wordList = wordList
+    .map((word) => {
+      if (!word.fixXandY) {
+        word.x = word.x + center[0]
+        word.y = word.y + center[1]
+        word.fixXandY = true
+        return word
+      }
+    })
+    .filter((o) => o)
+  // 技术有限， 只能通过写死的方式来符合坐标
   wordList.forEach((word) => {
     const { text, size, rotate, x, y, fontFamily, idKey, color } = word
     var fabricText = new fabric.Text(text, {
-      textAlign: 'center',
+      textAlign: 'left',
+      lineHeight: 1,
       fontSize: size,
+      left: x,
+      top: !rotate ? y - size / 4 : y,
       idKey,
       fontFamily: fontFamily || 'serif',
       fill: color || getRandomColor(),
@@ -54,16 +63,27 @@ export function update(fabricInstance, size, wordList) {
       -1 * sr.toFixed(6),
       cr.toFixed(6),
       x,
-      y,
+      !rotate ? y - size / 4 : y,
     ]
     var mT = fabric.util.multiplyTransformMatrices(
       transformMatrix,
       [1, 0, 0, 1, 0, 0]
     )
     var options = fabric.util.qrDecompose(mT)
-    var newCenter = { x: options.translateX, y: options.translateY }
+    var newCenter = {
+      x: options.translateX,
+      y: options.translateY,
+    }
     fabricText.set(options)
-    fabricText.setPositionByOrigin(newCenter, 'center', 'center')
+    fabricText.setPositionByOrigin(newCenter)
+    if (rotate) {
+      const nowLeft = fabricText.get('left')
+      console.log(nowLeft)
+      const leftOp = {
+        left: nowLeft + size / 2.5,
+      }
+      fabricText.set(leftOp)
+    }
     fabricInstance.add(fabricText)
   })
 }

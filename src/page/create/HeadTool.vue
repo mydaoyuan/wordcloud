@@ -8,6 +8,7 @@
       >生成词云</el-button
     >
     <el-button @click="exportImg" type="success">导出图片</el-button>
+    <el-button @click="fillOther" type="success">填充重复项目</el-button>
   </div>
 </template>
 
@@ -25,6 +26,10 @@ const exportImg = () => {
 }
 const listLoadingDone = () => {
   loadding.value = false
+}
+
+const fillOther = () => {
+  window.myContinue()
 }
 onMounted(() => {
   emitter.on('renderDone', listLoadingDone)
